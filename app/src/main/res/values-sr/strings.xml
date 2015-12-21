@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ОТП аутентификатор</string>
+    <string name="app_launcher">Аутентификатор</string>
+    <string name="no_accounts">Још нема додатих налога</string>
+    <string name="menu_delete">Обриши</string>
+    <string name="menu_edit">Уреди</string>
+    <string name="menu_scan">Очитај бар-кôд</string>
+    <string name="menu_about">О програму</string>
+</resources>
