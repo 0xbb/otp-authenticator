@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <!--  Name -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText android:id="@+id/account_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/add_account_label"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <!-- Key -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText android:id="@+id/account_key"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textVisiblePassword|textCapCharacters|textMultiLine"
+                android:hint="@string/add_account_key"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <!-- ToDo: Preparation to support other key types, see https://github.com/0xbb/otp-authenticator/issues/10
+        <Spinner
+            android:id="@+id/key_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        -->
+
+    </LinearLayout>
+</ScrollView>

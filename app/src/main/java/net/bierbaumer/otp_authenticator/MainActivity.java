@@ -10,12 +10,13 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,15 +30,21 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+//import android.widget.Spinner; ToDo: Preparation to support other key types, see https://github.com/0xbb/otp-authenticator/issues/10
 
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
+
+import org.apache.commons.codec.binary.Base32;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements  ActionMode.Callback {
     private ArrayList<Entry> entries;
     private EntriesAdapter adapter;
+    private FloatingActionMenu fam;
     private FloatingActionButton fab;
 
     private Handler handler;
@@ -69,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements  ActionMode.Callb
                // permission was granted
                doScanQRCode();
            } else {
-               Snackbar.make(fab, R.string.msg_camera_permission, Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
+               Snackbar.make(fam, R.string.msg_camera_permission, Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
                    @Override
                    public void onDismissed(Snackbar snackbar, int event) {
                        super.onDismissed(snackbar, event);
@@ -88,11 +95,11 @@ public class MainActivity extends AppCompatActivity implements  ActionMode.Callb
 
     private Entry nextSelection = null;
     private void showNoAccount(){
-        Snackbar noAccountSnackbar = Snackbar.make(fab, R.string.no_accounts, Snackbar.LENGTH_INDEFINITE)
+        Snackbar noAccountSnackbar = Snackbar.make(fam, R.string.no_accounts, Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.button_add, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        scanQRCode();
+                        fam.open(true);
                     }
                 });
         noAccountSnackbar.show();
@@ -107,11 +114,38 @@ public class MainActivity extends AppCompatActivity implements  ActionMode.Callb
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        fab = (FloatingActionButton) findViewById(R.id.action_scan);
+        fam = (FloatingActionMenu) findViewById(R.id.action_scan);
+        fam.setClosedOnTouchOutside(true);
+        fam.setOnMenuToggleListener(new FloatingActionMenu.OnMenuToggleListener() {
+            @Override
+            public void onMenuToggle(boolean opened) {
+                Integer icon;
+                if (opened) {
+                    icon = R.drawable.ic_image_camera_alt_135dgr;
+                    fam.setOnMenuButtonClickListener(new FloatingActionMenu.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            scanQRCode();
+                        }
+                    });
+                } else {
+                    icon = R.drawable.ic_add_white_24dp;
+                    fam.setOnMenuButtonClickListener(new FloatingActionMenu.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            fam.open(true);
+                        }
+                    });
+                }
+                fam.getMenuIconView().setImageResource(icon);
+            }
+        });
+        fab = (FloatingActionButton) findViewById(R.id.action_enter);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                scanQRCode();
+            public void onClick(View v) {
+                fam.close(true);
+                addAccount();
             }
         });
 
@@ -162,6 +196,71 @@ public class MainActivity extends AppCompatActivity implements  ActionMode.Callb
         };
     }
 
+    protected void addAccount() {
+        LayoutInflater inflater = getLayoutInflater();
+        View aa_layout = inflater.inflate(R.layout.dialog_add_account, null);
+        final EditText account_label = (EditText) aa_layout.findViewById(R.id.account_label);
+        final EditText account_key = (EditText) aa_layout.findViewById(R.id.account_key);
+
+        /* ToDo: Preparation to support other key types, see https://github.com/0xbb/otp-authenticator/issues/10
+        Spinner keyType = (Spinner) addAccountLayout.findViewById(R.id.key_type);
+        ArrayAdapter keyTypeAdapter = ArrayAdapter.createFromResource(this, R.array.spinner_key_type, android.R.layout.simple_spinner_item);
+        keyTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        keyType.setAdapter(keyTypeAdapter);
+        */
+
+        AlertDialog.Builder aa_dialog = new AlertDialog.Builder(this);
+        aa_dialog.setTitle(R.string.add_account_title);
+        aa_dialog.setView(aa_layout);
+        aa_dialog.setNegativeButton(R.string.add_account_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (entries.isEmpty()) {
+                    showNoAccount();
+                }
+            }
+        });
+        aa_dialog.setPositiveButton(R.string.add_account_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    Entry e = new Entry();
+                    e.setLabel(account_label.getText().toString());
+                    e.setSecret(new Base32().decode(account_key.getText().toString()));
+                    entries.add(e);
+                    SettingsHelper.store(getApplicationContext(), entries);
+                    adapter.notifyDataSetChanged();
+                    Snackbar.make(fam, R.string.msg_account_added, Snackbar.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Snackbar.make(fam, R.string.msg_invalid_key, Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onDismissed(Snackbar snackbar, int event) {
+                            super.onDismissed(snackbar, event);
+                            if (entries.isEmpty()) {
+                                showNoAccount();
+                            }
+                        }
+                    }).show();
+                }
+            }
+        });
+        final AlertDialog dialog = aa_dialog.create();
+        TextWatcher aa_validator = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() == 0 ? false : true);
+            }
+        };
+        account_key.addTextChangedListener(aa_validator);
+        dialog.show();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -189,9 +288,9 @@ public class MainActivity extends AppCompatActivity implements  ActionMode.Callb
 
                 adapter.notifyDataSetChanged();
 
-                Snackbar.make(fab, R.string.msg_account_added, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(fam, R.string.msg_account_added, Snackbar.LENGTH_LONG).show();
             } catch (Exception e) {
-                Snackbar.make(fab, R.string.msg_invalid_qr_code, Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
+                Snackbar.make(fam, R.string.msg_invalid_qr_code, Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
                         super.onDismissed(snackbar, event);
@@ -262,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements  ActionMode.Callb
                 public void onClick(DialogInterface dialog, int whichButton) {
                     entries.remove(adapter.getCurrentSelection());
 
-                    Snackbar.make(fab, R.string.msg_account_removed, Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
+                    Snackbar.make(fam, R.string.msg_account_removed, Snackbar.LENGTH_LONG).setCallback(new Snackbar.Callback() {
                         @Override
                         public void onDismissed(Snackbar snackbar, int event) {
                             super.onDismissed(snackbar, event);

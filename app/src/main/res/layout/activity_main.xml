@@ -49,12 +49,28 @@
 
     <include layout="@layout/content_main" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.github.clans.fab.FloatingActionMenu
+        xmlns:fab="http://schemas.android.com/apk/res-auto"
         android:id="@+id/action_scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/fab_margin"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_add_white_24dp"></android.support.design.widget.FloatingActionButton>
+        android:paddingBottom="10dp"
+        fab:layout_behavior="net.bierbaumer.otp_authenticator.FloatingActionMenuBehavior"
+        fab:menu_backgroundColor="#BF000000"
+        fab:menu_colorNormal="@color/colorAccent"
+        fab:menu_colorPressed="@color/colorAccent"
+        fab:menu_fab_label="@string/fam_label_scan">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/action_enter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_hardware_keyboard"
+            fab:fab_size="mini"
+            fab:fab_label="@string/fab_label_enter"/>
+
+    </com.github.clans.fab.FloatingActionMenu>
 
 </android.support.design.widget.CoordinatorLayout>

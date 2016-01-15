@@ -35,6 +35,7 @@ dependencies {
     compile 'com.journeyapps:zxing-android-embedded:3.0.3@aar'
     compile 'com.google.zxing:core:3.2.1'
     compile 'commons-codec:commons-codec:1.5'
+    compile 'com.github.clans:fab:1.6.2'
 
     androidTestCompile 'com.android.support:support-annotations:23.1.1'
     androidTestCompile 'com.android.support.test:runner:0.4.1'
