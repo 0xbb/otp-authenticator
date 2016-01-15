@@ -17,4 +17,18 @@
     <string name="alert_rename">Rename</string>
     <string name="alert_remove">"Remove "</string>
     <string name="msg_camera_permission">Camera permission not granted</string>
+    <string name="fam_label_scan">Scan QR code</string>
+    <string name="fab_label_enter">Enter private key</string>
+    <!-- ToDo: Preparation to support other key types, see https://github.com/0xbb/otp-authenticator/issues/10
+    <string-array name="spinner_key_type">
+        <item>TOTP (Time based)</item>
+        <item>HOTP (Counter based)</item>
+    </string-array>
+    -->
+    <string name="add_account_title">Add account</string>
+    <string name="add_account_label">Label</string>
+    <string name="add_account_key">Key</string>
+    <string name="add_account_ok">Add</string>
+    <string name="add_account_cancel">Cancel</string>
+    <string name="msg_invalid_key">Invalid key</string>
 </resources>
