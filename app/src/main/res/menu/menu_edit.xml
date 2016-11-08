@@ -4,6 +4,12 @@
     >
 
     <item
+            android:id="@+id/action_qrcode"
+            android:orderInCategory="100"
+            android:icon="@android:drawable/ic_menu_view"
+            app:showAsAction="ifRoom"
+            android:title="@string/menu_qrcode" />
+    <item
         android:id="@+id/action_edit"
         android:orderInCategory="100"
         android:icon="@android:drawable/ic_menu_edit"
