@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/windowBackground"
     android:fitsSystemWindows="true"
-    tools:context="net.bierbaumer.otp_authenticator.MainActivity">
+    tools:context="org.shadowice.flocke.andotp.Activities.MainActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -24,37 +25,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
+                app:navigationIcon="?homeAsUpIndicator"
+                app:popupTheme="?attr/actionBarPopupTheme" />
 
-
-
-            <ProgressBar
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
                 android:id="@+id/progressBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/toolbar"
                 android:max="3000"
                 android:progress="1500"
-                android:layout_alignBottom="@id/toolbar"
+                app:mpb_progressStyle="horizontal"
+                app:mpb_useIntrinsicPadding="false"
+                app:mpb_showProgressBackground="false"
+                style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding" />
 
-                />
-
-            </RelativeLayout>
-
-
-
-
+        </RelativeLayout>
 
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_main" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/action_scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_add_white_24dp"></android.support.design.widget.FloatingActionButton>
 
 </android.support.design.widget.CoordinatorLayout>
